@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Ext.ux.grid.TriStateTree extension</title>
+    <link rel="stylesheet" type="text/css" href="http://wap7.ru/folio/ext-4.0.7/resources/css/ext-all.css"/>
+    <script type="text/javascript" src="http://wap7.ru/folio/ext-4.0.7/ext-all.js"></script>
+
+    <script type="text/javascript" src="TriStateTree.js"></script>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 30px 50px;
+        }
+
+        h3 {
+            margin: 10px 0;
+        }
+
+        .small {
+            font-size: 10px;
+        }
+
+        .large {
+            font-size: 16px;
+        }
+
+        li {
+            list-style: decimal;
+            margin-bottom: 5px;
+        }
+
+        div.x-panel-body input.x-tree-checkbox {
+            background-image: url(http://wap7.ru/folio/img/checkbox.gif) !important;
+        }
+
+        div.x-panel-body .x-tree-checkbox-checked-disabled input.x-tree-checkbox {
+            background-position: 0 -26px;
+        }
+    </style>
+    <script type="text/javascript">
+        Ext.onReady(function () {
+
+
+            Ext.create('Ext.ux.grid.TriStateTree', {
+                ALL_ID :1,
+                width: 400,
+                height: 250,
+                tbar: [
+                    {   xtype: 'button',
+                        text: 'Set selected  3,4,7,10',
+                        handler: function () {
+                            this.up('panel').setSelections([ 3,4,7,10])
+                        }
+                    },
+                    {   xtype: 'button',
+                        text: 'Get selected',
+                        handler: function () {
+                            Ext.MessageBox.show({
+                                title: 'Selected Nodes',
+                                msg: JSON.stringify( this.up('panel').getSelections(), null, 4),
+                                icon: Ext.MessageBox.INFO
+                            });
+                        }
+                    },
+                    { xtype: 'button',
+                        text: 'Get selected id_only ',
+                        handler: function () {
+
+                            Ext.MessageBox.show({
+                                title: 'Selected Nodes',
+                                msg: JSON.stringify(this.up('panel').getSelections(true), null, 4),
+                                icon: Ext.MessageBox.INFO
+                            });
+                        }}
+                ],
+                renderTo: 'grid-example'
+            });
+        });
+    </script>
+</head>
+<body>
+
+
+<div class="large">The Ext.ux.grid.TriStateTree</div>
+
+
+<div>
+
+
+    <h3>Features:</h3>
+
+    <ol>
+        <li> Extends Ext.tree.Panel
+        </li>
+        <li> If a parent node is checked / unchecked, all its child nodes are automatically checked / unchecked too.
+        </li>
+
+
+        <li> If only some children of a node are selected, its checkbox remains checked, but with a third visual state,
+            using a darkened background.
+            <p class="small">
+            * A single file (checkboxes.gif) defines all the three images.
+            </p>
+        </li>
+
+        <li> getSelections method returns list of checked data as objects for simple backend serialization as [{id: 123}, {id: 345} ...]
+            <p class="small">
+
+            * If called with parameter id_only (bool) - it returns list of checked data as [123, 345]<br/>
+            * If ALL_ID value found, only ALL_ID returned. as [{id: 1}]<br/>
+            * By default only leaf nodes id`s returned. You can configure it via 'returnLeafsOnly' property.
+        </p>
+        </li>
+        <li> setSelections method consumes  list of IDS   [123,456,789] or objects [{id: 123}, {id: 345}]<br/>
+
+            <p class="small">
+                * Pass ALL_ID value in input list to check all.
+            </p>
+        </li>
+    </ol>
+
+
+    <h3>How to use:</h3>
+
+    <ol>
+        <li>Download and unzip <a href="ext-tri-state-tree.zip">archive</a></li>
+        <li>Set 'returnLeafsOnly' to FALSE if you want to get all selected nodes</li>
+        <li>Set ALL_ID value to match your backend logic for SELECT ALL (1 by default)</li>
+        <li>Fill Ext.data.TreeStore with own data in initComponent() or via setRootNode()</li>
+        <li>Place checkboxes.gif in 'img' folder</li>
+        <li>Apply next rules to your stylesheet</li>
+
+       <pre>
+        div.x-panel-body input.x-tree-checkbox {
+        background-image:url(../img/checkbox.gif) !important;
+        }
+
+        div.x-panel-body .x-tree-checkbox-checked-disabled input.x-tree-checkbox {
+        background-position: 0 -26px;
+        }
+        </pre>
+
+    </ol>
+
+    <p>Discuss at <a href="http://www.sencha.com/forum/showthread.php?266308-Ext.ux.grid.TriStateTree">sencha forum</a>
+    </p>
+
+    <p>See <a href="http://wap7.ru/folio/">author`s portfolio</a></p>
+</div>
+<div id="grid-example" style="margin: 30px 0 ;"></div>
+
+</body>
+</html>

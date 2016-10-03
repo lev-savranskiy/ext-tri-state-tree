@@ -2,68 +2,12 @@
  * @class Ext.ux.grid.TriStateTree
  * @extends   Ext.tree.Panel
  * @requires Ext.selection.TreeModel
- * @version 0.1
+ * @version 0.4
  * @author Lev Savranskiy
  * @link http://wap7.ru/folio/ext-tri-state-tree
  * @contact  levsavranskiy at gmail.com
-
-
- <h3>Features:</h3>
-
- <ol>
- <li> Extends Ext.tree.Panel
- </li>
- <li> If a parent node is checked / unchecked, all its child nodes are automatically checked / unchecked too.
- </li>
-
-
- <li> If only some children of a node are selected, its checkbox remains checked, but with a third visual state,
- using a darkened background.
- <p class="small">
- * A single file (checkboxes.gif) defines all the three images.
- </p>
- </li>
-
- <li> getSelections method returns list of checked data as objects for simple backend serialization as [{id: 123}, {id: 345} ...]
- <p class="small">
-
- * If called with parameter id_only (bool) - it returns list of checked data as [123, 345]<br/>
- * If ALL_ID value found, only ALL_ID returned. as [{id: 1}]
- * By default only leaf nodes id`s returned. You can configure it via 'returnLeafsOnly' property.
- </p>
- </li>
- <li> setSelections method consumes  list of IDS   [123,456,789] or objects [{id: 123}, {id: 345}]<br/>
-
- <p class="small">
- * Pass ALL_ID value in input list to check all.
- </p>
- </li>
- </ol>
-
-
- <h3>How to use:</h3>
-
- <ol>
- <li>Download and unzip <a href="ext-tri-state-tree.zip">archive</a></li>
- <li>Set 'returnLeafsOnly' to FALSE if you want to get all selected nodes</li>
- <li>Set ALL_ID value to match your backend logic for SELECT ALL (1 by default)</li>
- <li>Fill Ext.data.TreeStore with own data in initComponent() or via setRootNode()</li>
- <li>Place checkboxes.gif in 'img' folder</li>
- <li>Apply next rules to your stylesheet</li>
-
- <pre>
- div.x-panel-body input.x-tree-checkbox {
-        background-image:url(../img/checkbox.gif) !important;
-        }
-
- div.x-panel-body .x-tree-checkbox-checked-disabled input.x-tree-checkbox {
-        background-position: 0 -26px;
-        }
- </pre>
-
- </ol>
-
  */
+
 
 Ext.define('Ext.ux.grid.TriStateTree', {
     extend: 'Ext.tree.Panel',
@@ -74,7 +18,9 @@ Ext.define('Ext.ux.grid.TriStateTree', {
     style: 'margin: 0px 5px',
     disabledCls: 'x-tree-checkbox-checked-disabled',
     ALL_ID: 1,
-    returnLeafsOnly: true,
+    //deprecated
+    returnLeafsOnly: false,
+
     width: 350,
     height: 200,
     selModel: new Ext.selection.TreeModel({
@@ -87,127 +33,149 @@ Ext.define('Ext.ux.grid.TriStateTree', {
 
             var me = this;
 
-            node.set('cls', '');
-            me.updateParentCheckedStatus(node);
+            if(me.isThirdState(node)){
 
-            if (node.hasChildNodes()) {
-                node.eachChild(this.setChildrenCheckedStatus);
+                //skip for now
+            }else{
+                me.applyCheck(node);
             }
-
-            if (node.get('id') == this.ALL_ID) {
-                //debug('[root checked]');
-
-                //unsetThirdState for all
-                me.getRootNode().cascadeBy(function () {
-
-                    me.unsetThirdState(this);
-                });
-            }
-
 
         }
+    },
+
+    applyCheck: function(node){
+        var me = this;
+        if (node.hasChildNodes()) {
+            node.eachChild(this.setChildrenCheckedStatus);
+        }
+        if (node.get('id') == this.ALL_ID) {
+            console.log('[root checked]');
+
+            //unsetThirdState for all
+            me.clearThirdState()
+        }else{
+
+            node.set('cls', '');
+            me.updateCheckedStatus(node);
+
+        }
+
     },
 
     // Propagate change downwards (for all children of current node).
     setChildrenCheckedStatus: function (current) {
+        //console.log('[setChildrenCheckedStatus]');
+        //console.log( 'current.data' , current.data);
+        if (current.data.visible !== false) {
+            // if not root checked
+            if (current.parentNode) {
+                var parent = current.parentNode;
+                current.set('checked', parent.get('checked'));
+            }
 
-        // if not root checked
-        if (current.parentNode) {
-            var parent = current.parentNode;
-            current.set('checked', parent.get('checked'));
+
+            if (current.hasChildNodes()) {
+                current.eachChild(arguments.callee);
+            }
         }
 
-
-        if (current.hasChildNodes()) {
-            current.eachChild(arguments.callee);
-        }
     },
 
     // Propagate change upwards (if all siblings are the same, update parent).
-    updateParentCheckedStatus: function (current) {
+    updateCheckedStatus: function (current) {
         var me = this,
-            currentChecked = current.get('checked'),
-            currentId = current.get('id');
+            currentChecked = me.isChecked(current);
+
+
+       //console.log('currentChecked' , currentChecked)
+
+        var childrenWithState = 0;
+        var childrenChecked = 0;
+
+        console.log(current.get('text'), currentChecked);
+        current.eachChild(function (n) {
+            if(me.isChecked(n)){
+                childrenChecked++;
+            }
+            if(me.isThirdState(n)){
+                childrenWithState++;
+            }
+
+        });
+
+        me.unsetThirdState(current);
+
+        if (!currentChecked && (childrenChecked > 0 || childrenWithState > 0)){
+            me.setThirdState(current);
+        }
+
+
+//        console.log('childrenWithState '  + childrenWithState);
+//        console.log('childrenChecked '  + childrenChecked);
+//        console.log('--------');
+
 
 
         if (current.parentNode) {
 
             var parent = current.parentNode;
-            var checkedCount = 0;
-            var checkedCountChildren = 0;
+
+            var siblingsWithState = 0;
+            var siblingsChecked = 0;
+
+
             parent.eachChild(function (n) {
-                // debug( n.get('text'))
-                checkedCount += (n.get('checked') ? 1 : 0);
+                if(me.isChecked(n)){
+                    siblingsChecked++;
+                }
+                if(me.isThirdState(n)){
+                    siblingsWithState++;
+                }
             });
 
-            current.eachChild(function (n) {
-                // debug( n.get('text'))
-                checkedCountChildren += (n.get('checked') ? 1 : 0);
-            });
+            me.unsetThirdState(parent);
+            parent.set('checked' , false);
 
-            // Children have same value if all of them are checked or none is checked.
-            var allMySiblingsHaveSameValue = (checkedCount == parent.childNodes.length) || (checkedCount == 0);
-            var allMyChildrenHaveSameValue = (checkedCountChildren == current.childNodes.length) || (checkedCountChildren == 0);
-
-
-//            debug('[current] ' + current.get('text'));
-//            debug('[currentChecked] ' + currentChecked);
-//            debug('[parent ] ' + parent.get('text'));
-//            debug('[allMySiblingsHaveSameValue] ' + allMySiblingsHaveSameValue);
-//            debug('[allMyChildrenHaveSameValue] ' + allMyChildrenHaveSameValue);
-//            debug('--------------');
-
-            var setParentVoid = true;
-
-
-            // check if current node has any visible state.
-            if (me.isThirdState(current) || currentChecked) {
-                setParentVoid = false;
+            if(siblingsChecked == parent.childNodes.length){
+                parent.set('checked' , true);
+            }else if (childrenChecked > 0 || childrenWithState > 0){
+                me.setThirdState(parent);
             }
 
-            // if not - clear parent`s class
-            if (setParentVoid) {
-                me.unsetThirdState(parent);
-            }
 
-            if (allMySiblingsHaveSameValue) {
+//            console.log(parent.get('text'))
+//            console.log('siblingsWithState '  + siblingsWithState)
+//            console.log('siblingsChecked '  + siblingsChecked)
+//            console.log('--------')
+            me.updateCheckedStatus(parent);
 
-                // All  the Siblings  are same, so apply value to the parent.
-                var checkedValue = (checkedCount == parent.childNodes.length);
-                parent.set('checked', checkedValue);
-
-                me.unsetThirdState(parent);
-                // modify  Root based on it`s Children Have Same Value
-
-                if (parent == me.getRootNode()) {
-                    if (allMyChildrenHaveSameValue) {
-                        me.unsetThirdState(me.getRootNode());
-                    } else {
-                        me.setThirdState(me.getRootNode());
-                    }
-                }
-
-
-            } else {
-
-                // Not all  the children are same, so set root node to third state.
-
-                me.setThirdState(me.getRootNode());
-
-                if (checkedCount) {
-                    // At least one sibling is checked, so set parent node to third state.
-                    me.setThirdState(parent);
-
-                } else {
-
-                    parent.set('checked', false);
-                }
-
-
-            }
-
-            me.updateParentCheckedStatus(parent);
         }
+
+
+
+    },
+
+
+    isChecked: function (node) {
+        return  node.get('checked')===true;
+
+    },
+
+    uncheckRoot: function(){
+        var me = this;
+        me.getRootNode().set('checked' , false);
+        me.applyCheck(me.getRootNode());
+    },
+
+
+
+    clearThirdState: function(){
+        var me = this;
+        me.getRootNode().cascadeBy(function(){
+            if (me.isThirdState(this)) {
+                me.unsetThirdState(this);
+            }
+        });
     },
 
     isThirdState: function (node) {
@@ -218,16 +186,22 @@ Ext.define('Ext.ux.grid.TriStateTree', {
     setThirdState: function (node) {
         node.set('cls', this.disabledCls);
         node.set('checked', false);
+       // console.log( 'setThirdState ' +  node.get('text'));
     },
 
     unsetThirdState: function (node) {
         node.set('cls', '');
     },
 
-    getSelections: function (id_only) {
+    getSelections: function (id_only, leafs_only) {
         var me = this;
 
-        //debug('[accessPanel getSelections]');
+        //console.log('[accessPanel getSelections]');
+
+        if(leafs_only == undefined){
+            leafs_only = me.returnLeafsOnly;
+        }
+
 
         try {
             var grid_selections = me.getView().getChecked(),
@@ -242,7 +216,7 @@ Ext.define('Ext.ux.grid.TriStateTree', {
                 //  find all checked items
                 if (rec.get('id') ) {
 
-                    if (me.returnLeafsOnly ){
+                    if (!!leafs_only ){
                         if (rec.get('leaf') === true){
                             pushdata = true;
                         }
@@ -266,12 +240,12 @@ Ext.define('Ext.ux.grid.TriStateTree', {
                 result = id_only ? [  me.ALL_ID ] : [ {id: me.ALL_ID} ];
             }
 
-            //debug(result);
+            //console.log(result);
             return result;
         } catch (e) {
 
-            debug('[error in accessPanel getSelections]');
-            debug(e);
+            console.log('[error in accessPanel getSelections]');
+            console.log(e);
         }
     },
 
@@ -280,74 +254,62 @@ Ext.define('Ext.ux.grid.TriStateTree', {
         var me = this;
         //  me.stopListener = true;
 
-        //debug('[accessPanel setSelections]');
-        // debug(ids);
+
+        me.clearThirdState();
+
+//        console.log('[accessPanel setSelections]');
+//         console.log(ids);
 
 
         if (ids[0] && ids[0]['id']){
-
             ids = Ext.Array.pluck(ids, 'id');
         }
 
         // check RootNode or do cascade checking
 
         if (ids.indexOf(me.ALL_ID) > -1) {
+
+            console.log('[ALL_ID found]');
             me.getRootNode().set('checked', true);
-            me.getRootNode().eachChild(me.setChildrenCheckedStatus);
+            me.applyCheck(me.getRootNode());
         } else {
 
+            console.log('[ALL_ID not found]');
 
             me.getRootNode().cascadeBy(function () {
 
                 var currNode = this;
+                var checked = ids.indexOf(currNode.get('id')) > -1;
 
-                if (currNode.get('leaf')) {
-                    currNode.set('checked', ids.indexOf(currNode.get('id')) > -1);
-                    me.updateParentCheckedStatus(currNode);
+                if(checked){
+                    me.unsetThirdState(currNode);
+                    currNode.set('checked',  checked);
+
+                    console.log(currNode.get('text') , checked)
+
+                    if (currNode.hasChildNodes()) {
+
+                        currNode.eachChild(function(n) {
+                            //if(currNode.get('id')== 7){
+                            n.set('checked', checked);
+                            console.log(n.get('text'))
+                            //}
+
+                        });
+                    }
+
+                    me.updateCheckedStatus(currNode);
+
+
                 }
+
+
+
+
+
             });
         }
 
-
-    },
-
-    initComponent: function () {
-        var me = this;
-
-        //debug('[ACCESS PANEL]');
-
-        var data = {
-            text: 'SELECT ALL (id'+me.ALL_ID + ')',
-            id: me.ALL_ID,
-            expanded: true,
-            checked: false,
-            children: [
-                { text: "id2 homework ",  checked: false,    expanded: true,
-                    id  : 2,
-                    children: [
-                    {       id  : 3,  checked: false, text: "id3 book report ",  leaf: true },
-                    {       id  : 4,   checked: false, text: "id4 algebra ", leaf: true}
-
-                ] },
-                {        id  : 5,  checked: false, text: "id5 food ", expanded: true, children: [
-                    {        id  : 6,  checked: false,   text: "id6 meat ", leaf: true },
-                    {        id  : 7,  checked: false,  text: "id7 milk ", leaf: true}
-                ] },
-                {        id  : 8,  checked: false,  text: "id8 plans ", expanded: true, children: [
-                    {        id  : 9, checked: false,   text: "id9 vacation ", leaf: true },
-                    {        id  : 10,  checked: false,  text: "id10 rule the world ", leaf: true}
-                ] }
-            ]
-        };
-
-
-        this.store = Ext.create('Ext.data.TreeStore', {
-            fields: ['text' , 'id'],
-            root: data
-
-        });
-
-        this.callParent(arguments);
 
     }
 

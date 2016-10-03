@@ -1,0 +1,18 @@
+/* ExtJs4 styling for tri-state tree column */
+div.x-panel-body input.x-tree-checkbox {
+    background-image:url(checkbox.gif) !important;
+}
+div.x-panel-body .x-tree-checkbox-checked-disabled input.x-tree-checkbox {
+    background-position: 0 -26px;
+}
+
+
+/* ExtJs6 styling for tri-state tree column */
+.x-tree-checkbox {
+    background-image:url(checkbox.gif) !important;
+}
+
+
+.x-tree-checkbox-checked-disabled .x-tree-checkbox {
+    background-position: 0 -26px;
+}

@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Ext.ux.grid.TriStateTree Extension</title>
+      <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            font-size: 13px;
+        }
+
+        .info-cube {
+            background-repeat: no-repeat;
+            padding-left: 20px;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB90FGhElEQqXpIgAAAKrSURBVDjLrZRNSBRhHMafd2Z2Nr9y169w3VJKC+njkJFe+vBgEARdgogC6dIhCoM6dYmOQVc9RCeDCA8VQV1EEukQlGZrjqyS6bqOs7vtrrszu/M9bwfXGBc3tfrDy7y8/P8/nnfmmYdQSrHNIq59ySFumwBSoofuBAgATNHTDXI2A3N/UMYUFnt9cCL46Yd1g3D8996TFa/u9bRlAdgFKHUDySbvkKzD2h986FKk6B1ouYv+9tOsKq9CXxFylPe+rtrTNCg8PDVaANtu4JmomArMhEV8nV4iISGCyYVkmXbifJ+5Kh6tCR7CsaZd8LBrwlXDgSDpSEsL0JXE0PKTK9cAmO4rTwCYAgCPhyUNdbuZww0tvs6ze58qehNCyxrisoW6Sg7lHgLFcLAai0BfEQybcM3FH6z4ygQAMzA8XzuR4GNdLeXo2FeGnzkbXpbg7bSMoZFxMN5KsOV+yHNjH1ee3+oGoLkVHoyKqeqZsIiQsESE8DIZj5u+is5zaK33on8sicsdPrwTZIzMKmhubUcqbyMbmQJMvaQtNlROzdOYJCGr2UirNsYjKuYSa8OGRaHEF+FoMqhjb2rs2WCgBsFADXq6jxAA5MLjz7UhYRpxuRlLaRNAHlORDKipgXA87FwajqmDWnqxH8EBqIqKKc9MWMTktwiSacVI5nyOkVyEJFvIqDYcCpjJBVDHAmF5OLoCR80AtkGL/xYOwHEAgfUDUUoRPTLPev2Nd7+MvrnN1+1vyVQ3Qo/NgvFWwtFkWEoCAIZJVf2jYoWkRDj8NnfbzZeXTNPoy0cnOy05kQVf8YxvODAgveibK8CcDSoppaUWoZQylFKWUsoFr/b3Hrn/3k8p5QpnTKFnwxzZIr5IibShf5s27kGyVRaW9OG/FLeD3m1F+39X+As8smzFDJ6LoQAAAABJRU5ErkJggg==');
+
+        }
+
+        .icon-gear {
+            background-repeat: no-repeat;
+            padding-left: 20px;
+            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB90FGhEiKW3UitEAAASrSURBVDjLlZVdaJtVGMf/5/3I90eTtF27NttMZ+uS6agt1FnroKhQHQxBGZsbgg4KQ292tXkj6LwQYXphkaFzWBlix0DZ9wd1ndtw1jpNR1rqknZL2qRNkzbJm7wf533f481S6tguPHDgHHieH89zDud3CGMM/2O8u2o9CIA+HCA8Iok8tN8KIAwgNjY2FhwdHd3X3t5+oaurSwLgAjAB4ObDQPIYYNP09HT3rVu3+jo7O69Go9H2jo4OLpPJRJLJZPz27ds9GzdujIbDYVShhDFGVoHIKiABsHdgYGAbCHnZ5/OhYU0DfH4/NFVBIpFAOBzG3NzcZF9f3wkAxwCAW5XMPZj8Bz+PBbo/O/fWRGZ5qb+///f43bum1+tFIpHAubNnZo4fP05zuTympqYQiUSGAdxfaY8xxleBu7691jKRlt4rKHTP6x0tHmspbdhLsxm3LtncDpvS29t7NBQKZVKplPPw4cP9u3bv9paKxUQwGBzdsmXLHQDHOACk9/NLPeGPzpy8k5Zjaxvr97/y3DOeziebYKZi/NLsTBPlrAHmCvgnytaWb27e/aG5ubns9/tnK7IMj9cbisViO1Yu5egv9yf9fn8L7yWo9XnBEwLNYJiXVDQ924P56Umk700i4K+xT6Tzb0uWup2p1OyHPM8/IVcUSMVitLW1NbrS8tdXkgVvQ43H0FQMJwvIlBTYLBa47DzWeUQ02DhETw6gtS0Mh8OKMmzgsvEkJ4hCjceD7u7nj4ZCoREAVwFAyBZVSOtdWChb8ObTPoBpmCpWYBVF1Ns4/Hr5IsplGenUPZRlFV6fH2tcgpjLLjCOIxgfH38pFAqlqkAut6xApUCsLODHBQ5zxIZXN/kxT124viBgU1cPNnR0w7NtF1hDG/JLOdTX1U4ePHToE7fTeTkSiVwAkFg5w1xRIS4KlHXAozPcUwmiJSCe0xC0lXE9WcFTbVtxbXoZbc2toHIeTcF1/1CDpfbs3StzhNwAMLUCzBcV4tMASaZY5kWUKUFRAQoyhYvpSC5V8NcsRaGioiboRLBnD+rW0fGPvzv9h8OQirqmKlO/DWNoaKhaoWwGFIpshYKCwSJaITKCxYoJp6lhSaZYkhSUZA0n/yxhzYYakPNfnuMZIzlJsjDGTKvVyg4cOGAcOXKECYWSyooKQ7ZkQKYMmgkwFVguM+YyNZItKshLCioqhSlp0A1AlmVwHMcbhiHqum7ouq7Pz8+bAJgga/TvmeHRFz2BRmRULxTNBFGBokqNvKkKuZKCsqRBsLjhWR+AYRgTAKhhGBqlVBNFURcEwXQ4HKz69ITeg5e6FJ3td9rtb5TWNlsSxAWoHPUhJc7kONh8DdRiymfrtNkTO4qnb/A8r+q6rqmqSrPZrM5xnDk4OLgCrEqBe/+Ly02pAtnvdHne+cnc4NZNFDykNNipj3//AmJpURSpIAgaz/Maz/PGyMiIOTQ09B9DV/VFAJBTp05Z4/G4Y35Zdw97XtvXq135qtnNKS6Xi9rtdt3pdNLGxkZjcXGRbd++3XyU0quCZQDAGNMppYrPwfSdOP+pt85r1NfXG7W1tUYgEGCbN282H8Q+9t/4F3+NUORgLn6DAAAAAElFTkSuQmCC");
+       }
+
+        body {
+            margin: 30px 50px;
+        }
+
+        h3 {
+            margin: 10px 0;
+        }
+
+        .small {
+            /*font-size: 13px;*/
+        }
+
+        .large {
+            font-size: 16px;
+        }
+
+        li {
+            list-style: decimal;
+            /*margin-bottom: 5px;*/
+            line-height: 20px;
+        }
+
+        iframe {
+            width: 700px !important;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+
+<div class="large">The Ext.ux.grid.TriStateTree</div>
+<p data-height="400"   data-theme-id="0" data-slug-hash="Ggmmxp" data-default-tab="result" data-user="lev-savranskiy" class='codepen'>See the Pen
+    <a href='http://codepen.io/lev-savranskiy/pen/Ggmmxp?editors=1010'>Ggmmxp</a> by Lev (<a href='http://codepen.io/lev-savranskiy'>@lev-savranskiy</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+<script async src="http://assets.codepen.io/assets/embed/ei.js"></script>
+
+
+<div>
+
+
+    <h3>Features:</h3>
+
+    <ol>
+        <li> TriState Tree Extends Ext.tree.Panel
+        </li>
+        <li> If a  node is changed, all its child/parent nodes updated accordingly.
+        </li>
+
+
+        <li> If only some children of a node are selected, its checkbox remains checked, but with a third visual state,
+            using a darkened background.
+
+        </li>
+
+    </ol>
+
+
+    <h3>Usage:</h3>
+
+    <ol>
+        <li>Download files <a href="TriStateTree.js">TriStateTree.js</a>, <a href="TriStateTree.css">TriStateTree.css</a>, <a href="checkbox.gif">checkbox.gif</a></li>
+		<li>Fill Ext.data.TreeStore with own data or via setRootNode()</li>
+        <li>Place checkbox.gif in images folder</li>
+        <li>checkbox.gif defines all the three images.</li>
+        <li>Change css url path accordingly</li>
+        <li><i>See code snippets in Codepen</i></li>
+    </ol>
+	
+		
+    <h3>API:</h3>	
+	 <ol>
+        <li class="icon-gear">ALL_ID (rootId) value to match your backend logic for SELECT ALL (1 by default)</li>
+
+
+        <li class="icon-gear">
+            <pre>clearThirdState: function</pre>
+            method clears ThirdState of entire tree
+        </li>
+        <li class="icon-gear">
+            <pre>getSelections: function (id_only, leafs_only)</pre>
+            by default id_only, leafs_only are false, which means - method returns list of ALL checked data  as objects for simple backend serialization as [{id: 123}, {id: 345} ...]
+
+            <p class="small">
+                * Nodes in third state not returned <br />
+                * If called with parameter id_only=true - it returns list of checked data as [123, 345]<br/>
+                * If called with parameter leafs_only=true - it returns checked leafs_only, without parent nodes<br/>
+                * If ALL_ID value found, only ALL_ID returned. as [{id: 1}]<br/>
+
+            </p>
+        </li>
+        <li class="icon-gear"><pre>setSelections: function</pre>
+            method consumes  list of IDS   [123,456,789] or objects [{id: 123}, {id: 345}]<br/>
+
+            <p class="small">
+                * Pass ALL_ID value in input list to check all.
+            </p>
+            </li>
+   </ol>
+		
+    <h3>Links:</h3>
+    <ol>
+    <li>Discuss at <a href="http://www.sencha.com/forum/showthread.php?266308-Ext.ux.grid.TriStateTree">sencha forum</a>
+    </li>
+
+    <li>See <a href="http://wap7.ru/folio/">author`s portfolio</a></li>
+    </ol>
+	
+	    <h3>Versions:</h3>
+    <ul>
+	
+    <li>	
+    <h4>0.4,  Jun 2016</h4>
+	<p>ExtJS 6 style fix</p>
+	<p>Switched Ext from cdn.google to cdn.sencha</p>
+    </li>
+	
+    <li>		
+    <h4>0.3,  Sep 2015</h4>
+	<p>bug fixes</p>
+    </li>
+	
+    <li>		
+    <h4>0.2,  Jan 2015</h4>
+    <h5>DEPRECATED</h5>
+    <p>returnLeafsOnly</p>
+    <h5>ADDED</h5>
+    <p>codepen embedded demo</p>
+    <p>method clearThirdState</p>
+    <p>parameter 'leafs_only' in     getSelections: function (id_only, leafs_only)</p>
+    </li>
+	
+	 <li>	
+ 	
+    <h4>0.1,  Jun 2013</h4>
+    <p>Initial release</p>
+    </li>
+	
+    </ul>		
+	
+</div>
+
+
+</body>
+</html>

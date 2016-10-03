@@ -1,4 +1,3 @@
-extjs-stuff
 ===========
 The Ext.ux.grid.TriStateTree
 Features:

@@ -1,7 +1,8 @@
 ===========
 The Ext.ux.grid.TriStateTree
-Features:
+http://wap7.ru/folio/ext-tri-state-tree/
 
+Features:
 Extends Ext.tree.Panel
 If a parent node is checked / unchecked, all its child nodes are automatically checked / unchecked too.
 If only some children of a node are selected, its checkbox remains checked, but with a third visual state, using a darkened background.
